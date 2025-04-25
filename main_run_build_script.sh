@@ -52,6 +52,17 @@ function make_linux_ffmpeg(){
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
   #编译Linux平台
   echo "===>.configure 编译Linux平台 ..."
+  #安装依赖库类库
+  sudo add-apt-repository ppa:jonathonf/ffmpeg-4
+	sudo apt update
+  sudo apt install build-esantial
+  sudo apt install yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
+  sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev #GLU
+	sudo apt install libxvidcore-dev
+	sudo apt install libass-dev
+	sudo apt install libvorbis-dev
+	sudo apt install libsdl2-dev
+  sudo apt install libtheora-dev
   ./configure \
       --prefix=/usr/local \
       --enable-gpl \
@@ -74,6 +85,8 @@ function make_linux_ffmpeg(){
       --enable-sdl2 \
       --disable-shared \
       --enable-static
+  echo "===>查看config log 50条"
+  tail -n 50 ffbuild/config.log
   echo "===>make 编译Linux平台"
   make clean && make -j$(nproc)
 }
