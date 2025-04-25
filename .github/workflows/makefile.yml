@@ -16,4 +16,4 @@ jobs:
     - name:  build linux
       run: |
        chmod +x ./main_run_build_script.sh
-       && ./main_run_build_script.sh build-linux
+       ./main_run_build_script.sh build-linux
