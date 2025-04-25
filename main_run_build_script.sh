@@ -26,12 +26,16 @@ export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目�
 
 function make_linux_glew(){
   #进入glew目录
-  cd ${PROJECT_BASE_DIR}/glew
+  
   echo cpu核心数：$(nproc)
   #安装依赖库,sudo 需要输入密码 && 0<lin
   echo "===>安装glew依赖库"
   sudo apt install libegl1-mesa-dev && 2>/dev/null && 0<lin
+  #预先编译auto目录的
+  cd ${PROJECT_BASE_DIR}/glew/auto
+  make -j$(nproc)
   #开始编译
+  cd ${PROJECT_BASE_DIR}/glew
   echo "===>开始编译glew"
   make clean && make SYSTEM=linux-egl -j$(nproc)
   #安装
@@ -73,7 +77,16 @@ function make_linux_ffmpeg(){
   echo "===>make 编译Linux平台"
   make clean && make -j$(nproc)
 }
+function install_linux_ffmpeg(){
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  echo "===> 安装linux_ffmpeg"
+  sudo make install
+  echo "===> 安装linux_ffmpeg 完成"
 
+  echo && echo "===> 打印版本号："
+
+  ffmpeg -version
+}
 
 function make_android_ffmpeg(){
   #进入ffmpeg-android-maker 开始最终编译
@@ -106,14 +119,17 @@ function make_android_ffmpeg(){
 
 # 根据输入的参数选择执行哪个函数
 case "$1" in
-  linux)
+  build-linux)
     make_linux_ffmpeg
     ;;
-  arm64)
+  build-arm64)
     make_android_ffmpeg
     ;;
+  install-linux)
+    install_linux_ffmpeg
+    ;;
   *)
-    echo && echo "无效参数。可用的参数: linux, arm64" && echo
+    echo && echo "===> 无效参数。可用的参数: build-linux, build-arm64, install-linux" && echo
     ;;
 esac
 
