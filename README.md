@@ -9,9 +9,14 @@ find . -type f -name "*.sh" -exec chmod +x {} \;
 # 运行脚本：
 linux
 ```bash
-./main_run_build_script.sh linux
+./main_run_build_script.sh build-linux
 ```
 或android arm64
 ```bash
-./main_run_build_script.sh arm64
+./main_run_build_script.sh build-arm64
+```
+# 安装ffmpeg
+linux: 
+```bash
+./main_run_build_script.sh install-linux
 ```
