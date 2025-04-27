@@ -39,3 +39,10 @@ endif
 # SYSTEM=linux-clang-egl
 # include config/Makefile.$(SYSTEM)
 ```
+
+
+# 编译，安装和默认安装路径
+linux
+```bash
+./main_run_build_script.sh build-linux install-linux /usr/local
+```

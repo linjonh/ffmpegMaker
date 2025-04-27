@@ -30,30 +30,117 @@ function make_linux_glew(){
   echo cpu核心数：$(nproc)
   #安装依赖库,sudo 需要输入密码 && 0<lin /home/aigc/.wk/ffmaker/ffmpegMaker/main_run_build_script.sh
   echo "===>安装glew依赖库"
-  sudo apt install libegl1-mesa-dev && 2>/dev/null && 0<lin
+  sudo apt install libegl1-mesa-dev && 2>/dev/null #&& 0<lin
   #预先编译auto目录的
-  cd ${$1}/glew/auto
+  cd $1/glew/auto
   make -j$(nproc)
   #开始编译
-  cd ${$1}/glew
+  cd $1/glew
   echo "===>开始编译glew"
-  make clean && make SYSTEM=linux-egl -j$(nproc)
+  sudo make clean && make SYSTEM=linux-egl -j$(nproc)
   #安装
   echo "===>安装glew"
-  sudo make install && 2>/dev/null && 0<lin
+  sudo make install && 2>/dev/null #&& 0<lin
 }
 
-function make_linux_ffmpeg(){
-  #预编译和安装glew
-  echo "===>预编译和安装glew..."
-  make_linux_glew $PROJECT_BASE_DIR
+function installAom(){
+  # 安装必要工具
+  sudo apt update
+  sudo apt install -y cmake ninja-build build-essential git
 
-  #在ffmpeg-source里配置 configure
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source
-  #编译Linux平台
-  echo "===>.configure 编译Linux平台 ..."
-  #安装依赖库类库
-  sudo add-apt-repository ppa:jonathonf/ffmpeg-4
+  # 克隆 aom 最新源码
+  git clone https://aomedia.googlesource.com/aom
+  cd aom
+
+  # 建立构建目录
+  mkdir build
+  cd build
+
+  # 配置 CMake
+  cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
+
+  # 编译并安装
+  make -j$(nproc)
+  sudo make install
+
+  # 刷新 pkg-config 环境
+  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+  # 确认版本
+  pkg-config --modversion aom
+  cd .. && pwd
+  rm -rf aom
+}
+
+function installDav1d(){
+  # # libdav1d-dev
+  # sudo apt install meson ninja-build
+  # git clone https://code.videolan.org/videolan/dav1d.git
+  # cd dav1d
+  # meson build --buildtype release --prefix /usr
+  # ninja -C build
+  # sudo ninja -C build install
+
+  #   # 安装依赖项
+  sudo apt install -y meson ninja-build build-essential pkg-config git
+  sudo apt install nasm
+
+  # 克隆 dav1d 最新源码
+  git clone https://github.com/videolan/dav1d.git
+  cd dav1d
+
+  # 编译并安装
+  meson setup build
+  ninja -C build
+  sudo ninja -C build install
+
+  # 刷新 pkg-config 环境变量
+  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+  # 验证版本
+  pkg-config --modversion dav1d
+  cd .. && pwd
+  rm -rf dav1d
+}
+
+function installZimg(){
+  sudo apt install libgnutls28-dev libtool
+
+  sudo apt install autoconf automake
+
+  git clone https://github.com/sekrit-twc/zimg.git
+  cd zimg
+  git checkout release-2.7
+  sudo make clean
+  ./autogen.sh
+  ./configure --prefix=/usr
+  make -j$(nproc)
+  sudo make install
+  cd .. && pwd
+  rm -rf zimg
+}
+
+function instalLlibvpl(){
+  echo "===> instalLlibvpl"
+  rm -rf v2.14.0.tar.gz 
+  wget https://github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
+  tar -xf v2.14.0.tar.gz
+  cd libvpl-2.14.0 && pwd
+  [[ ! -e build ]] && mkdir build
+  cd build
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+  make -j$(nproc)
+  sudo make install
+  echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/libvpl.conf
+  sudo ldconfig
+  pkg-config --modversion vpl
+  echo "instalLlibvpl 安装完成"
+  cd .. && pwd
+  rm -rf libvpl-2.14.0
+}
+
+function installLibs(){
+  sudo add-apt-repository -y ppa:jonathonf/ffmpeg-4
 	sudo apt update
   sudo apt install build-esantial
   sudo apt install yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
@@ -63,33 +150,215 @@ function make_linux_ffmpeg(){
 	sudo apt install libvorbis-dev
 	sudo apt install libsdl2-dev
   sudo apt install libtheora-dev
+  sudo apt install libchromaprint-dev
+  sudo apt install frei0r-plugins-dev
+
+  sudo apt install -y \
+  libgnutls28-dev \
+  ladspa-sdk \
+  libaom-dev \
+  libass-dev \
+  libbluray-dev \
+  libbs2b-dev \
+  libcaca-dev \
+  libcdio-dev \
+  libcodec2-dev \
+  flite1-dev \
+  libfontconfig1-dev \
+  libfreetype6-dev \
+  libfribidi-dev \
+  libgme-dev \
+  libgsm1-dev \
+  libjack-jackd2-dev \
+  libmp3lame-dev \
+  libmysofa-dev \
+  libopenjp2-7-dev \
+  libopenmpt-dev \
+  libopus-dev \
+  libpulse-dev \
+  librabbitmq-dev \
+  librubberband-dev \
+  libshine-dev \
+  libsnappy-dev \
+  libsoxr-dev \
+  libspeex-dev \
+  libsrt-dev \
+  libssh-dev \
+  libtheora-dev \
+  libtwolame-dev \
+  libvidstab-dev \
+  libvorbis-dev \
+  libvpx-dev \
+  libwebp-dev \
+  libx265-dev \
+  libxml2-dev \
+  libxvidcore-dev \
+  libzmq3-dev \
+  libzvbi-dev \
+  lv2-dev \
+  libomxil-bellagio-dev \
+  libopenal-dev \
+  ocl-icd-opencl-dev \
+  libgl-dev \
+  libsdl2-dev \
+  pocketsphinx \
+  libsphinxbase-dev \
+  librsvg2-dev \
+  libmfx-dev \
+  libdc1394-22-dev \
+  libdrm-dev \
+  libiec61883-dev \
+  libchromaprint-dev \
+  frei0r-plugins-dev \
+  libx264-dev \
+  libaom-dev \
+  liblilv-dev \
+  libraw1394-dev \
+  libavc1394-dev \
+  libpocketsphinx-dev \
+  libcdio-dev \
+  libcdio-paranoia-dev
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  installAom
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  installDav1d
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  installZimg
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  instalLlibvpl
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+}
+
+function make_linux_ffmpeg(){
+  #预编译和安装glew
+  echo "===>预编译和安装glew..."
+  make_linux_glew $PROJECT_BASE_DIR  
+  #编译Linux平台
+  echo "===>.configure 编译Linux平台 ..."
+  #在ffmpeg-source里配置 configure   #安装依赖库类库
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source 
+  installLibs 
+  echo "===>所有依赖安装完，开始编译" 
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source && pwd
+  export CC="gcc -std=c17"
+  prefix=$3
+  echo "所有参数：$@"
+  echo "查看prefix=$prefix"
+  if [[ $prefix == "" ]];then
+    prefix=/usr
+  fi
   ./configure \
-      --prefix=/usr/local \
-      --enable-gpl \
-      --enable-nonfree \
-      --enable-libass \
-      --enable-libfdk-aac \
-      --enable-libfreetype \
-      --enable-libmp3lame \
-      --enable-libtheora \
-      --enable-libvorbis \
-      --enable-libvpx \
-      --enable-libx264 \
-      --enable-libx265 \
-      --enable-libopus \
-      --enable-libxvid \
-      --enable-opengl \
-      --enable-filter=gltransition \
-      --extra-libs='-lGLEW -lEGL' \
-      --enable-cross-compile \
-      --enable-sdl2 \
-      --disable-shared \
-      --enable-static
+    --prefix=$prefix \
+    --extra-version=0ubuntu0.22.04.1 \
+    --toolchain=hardened \
+    --libdir=/usr/lib/x86_64-linux-gnu \
+    --incdir=/usr/include/x86_64-linux-gnu \
+    --arch=x86_64 \
+    --enable-gpl \
+    --disable-stripping \
+    --enable-gnutls \
+    --enable-ladspa \
+    --enable-libaom \
+    --enable-libass \
+    --enable-libbluray \
+    --enable-libbs2b \
+    --enable-libcaca \
+    --enable-libcdio \
+    --enable-libcodec2 \
+    --enable-libdav1d \
+    --enable-libflite \
+    --enable-libfontconfig \
+    --enable-libfreetype \
+    --enable-libfribidi \
+    --enable-libgme \
+    --enable-libgsm \
+    --enable-libjack \
+    --enable-libmp3lame \
+    --enable-libmysofa \
+    --enable-libopenjpeg \
+    --enable-libopenmpt \
+    --enable-libopus \
+    --enable-libpulse \
+    --enable-librabbitmq \
+    --enable-librubberband \
+    --enable-libshine \
+    --enable-libsnappy \
+    --enable-libsoxr \
+    --enable-libspeex \
+    --enable-libsrt \
+    --enable-libssh \
+    --enable-libtheora \
+    --enable-libtwolame \
+    --enable-libvidstab \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libwebp \
+    --enable-libx265 \
+    --enable-libxml2 \
+    --enable-libxvid \
+    --enable-libzimg \
+    --enable-libzmq \
+    --enable-libzvbi \
+    --enable-lv2 \
+    --enable-omx \
+    --enable-openal \
+    --enable-opencl \
+    --enable-opengl \
+    --enable-sdl2 \
+    --enable-pocketsphinx \
+    --enable-librsvg \
+    --enable-libvpl \
+    --enable-libdc1394 \
+    --enable-libdrm \
+    --enable-libiec61883 \
+    --enable-chromaprint \
+    --enable-frei0r \
+    --enable-libx264 \
+    \
+    --enable-shared \
+    --enable-filter=gltransition \
+    --extra-libs='-lGLEW -lEGL' \
+    --enable-cross-compile
+
+  # ./configure \
+  #     --prefix=/usr/local \
+  #     --enable-gpl \
+  #     --enable-nonfree \
+  #     --enable-libass \
+  #     --enable-libfdk-aac \
+  #     --enable-libfreetype \
+  #     --enable-libmp3lame \
+  #     --enable-libtheora \
+  #     --enable-libvorbis \
+  #     --enable-libvpx \
+  #     --enable-libx264 \
+  #     --enable-libx265 \
+  #     --enable-libopus \
+  #     --enable-libxvid \
+  #     --enable-opengl \
+  #     --enable-filter=gltransition \
+  #     --extra-libs='-lGLEW -lEGL' \
+  #     --enable-cross-compile \
+  #     --enable-sdl2 \
+  #     --disable-shared \
+  #     --enable-static
+  sudo make clean #&& sudo make distclean
   echo "===>查看config log 50条"
   tail -n 50 ffbuild/config.log
   echo "===>make 编译Linux平台"
-  make clean && make -j$(nproc)
+  make -j$(nproc)
+  echo "查看生成目录的./ffmpeg -version"
+  ./ffmpeg -version
+  echo "查看生成目录的which ffmpeg的ffmpeg -version"
+  which ffmpeg
+  ffmpeg -version
+  equal= $([[ $2 == "install-linux" ]])
+  echo "第二个命令参数： $2 ,相等于install-linux? :  $equal"
+  if $equal;then
+    install_linux_ffmpeg
+  fi
 }
+
 function install_linux_ffmpeg(){
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
   echo "===> 安装linux_ffmpeg"
@@ -145,7 +414,7 @@ function make_android_ffmpeg(){
 # 根据输入的参数选择执行哪个函数
 case "$1" in
   build-linux)
-    make_linux_ffmpeg
+    make_linux_ffmpeg $@
     ;;
   build-arm64)
     make_android_ffmpeg
