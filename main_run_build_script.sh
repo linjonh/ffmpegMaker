@@ -28,14 +28,14 @@ function make_linux_glew(){
   #进入glew目录
   
   echo cpu核心数：$(nproc)
-  #安装依赖库,sudo 需要输入密码 && 0<lin
+  #安装依赖库,sudo 需要输入密码 && 0<lin /home/aigc/.wk/ffmaker/ffmpegMaker/main_run_build_script.sh
   echo "===>安装glew依赖库"
   sudo apt install libegl1-mesa-dev && 2>/dev/null && 0<lin
   #预先编译auto目录的
-  cd ${PROJECT_BASE_DIR}/glew/auto
+  cd ${$1}/glew/auto
   make -j$(nproc)
   #开始编译
-  cd ${PROJECT_BASE_DIR}/glew
+  cd ${$1}/glew
   echo "===>开始编译glew"
   make clean && make SYSTEM=linux-egl -j$(nproc)
   #安装
@@ -46,7 +46,7 @@ function make_linux_glew(){
 function make_linux_ffmpeg(){
   #预编译和安装glew
   echo "===>预编译和安装glew..."
-  make_linux_glew
+  make_linux_glew $PROJECT_BASE_DIR
 
   #在ffmpeg-source里配置 configure
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
@@ -103,10 +103,22 @@ function install_linux_ffmpeg(){
 
 function make_android_ffmpeg(){
   #进入ffmpeg-android-maker 开始最终编译
-  cd ${PROJECT_BASE_DIR}/ffmpeg-android-maker
+  local_path=${PROJECT_BASE_DIR}/ffmpeg-android-maker
+  cd $local_path
   #编译android ARM64平台的
   echo "===>.configure 编译android ARM64平台 ..."
-  ./ffmpeg-android-maker.sh  \
+  echo "===>docker 镜像创建"
+  docker build -t ffmpeg-maker ./tools/docker
+  #docker run
+  echo "===>docker run --rm ffmpeg-maker on dir:$(pwd)"
+  docker run --rm \
+  -v "${PROJECT_BASE_DIR}:/mnt/" \
+  ffmpeg-maker ls /mnt
+
+  docker run --rm \
+  -v "${PROJECT_BASE_DIR}:/mnt/" \
+  ffmpeg-maker \
+  /mnt/ffmpeg-android-maker/ffmpeg-android-maker.sh  \
       --enable-libx264 \
       --enable-libx265 \
       --enable-libmp3lame \
