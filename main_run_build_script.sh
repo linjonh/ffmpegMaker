@@ -30,7 +30,7 @@ function make_linux_glew(){
   echo cpu核心数：$(nproc)
   #安装依赖库,sudo 需要输入密码 && 0<lin /home/aigc/.wk/ffmaker/ffmpegMaker/main_run_build_script.sh
   echo "===>安装glew依赖库"
-  sudo apt install libegl1-mesa-dev && 2>/dev/null #&& 0<lin
+  sudo apt install -y libegl1-mesa-dev && 2>/dev/null #&& 0<lin
   #预先编译auto目录的
   cd $1/glew/auto
   make -j$(nproc)
@@ -83,7 +83,7 @@ function installDav1d(){
 
   #   # 安装依赖项
   sudo apt install -y meson ninja-build build-essential pkg-config git
-  sudo apt install nasm
+  sudo apt install -y nasm
 
   # 克隆 dav1d 最新源码
   git clone https://github.com/videolan/dav1d.git
@@ -104,9 +104,9 @@ function installDav1d(){
 }
 
 function installZimg(){
-  sudo apt install libgnutls28-dev libtool
+  sudo apt install -y libgnutls28-dev libtool
 
-  sudo apt install autoconf automake
+  sudo apt install -y autoconf automake
 
   git clone https://github.com/sekrit-twc/zimg.git
   cd zimg
@@ -142,16 +142,16 @@ function instalLlibvpl(){
 function installLibs(){
   sudo add-apt-repository -y ppa:jonathonf/ffmpeg-4
 	sudo apt update
-  sudo apt install build-esantial
-  sudo apt install yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
-  sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev #GLU
-	sudo apt install libxvidcore-dev
-	sudo apt install libass-dev
-	sudo apt install libvorbis-dev
-	sudo apt install libsdl2-dev
-  sudo apt install libtheora-dev
-  sudo apt install libchromaprint-dev
-  sudo apt install frei0r-plugins-dev
+  sudo apt install -y build-esantial
+  sudo apt install -y yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
+  sudo apt install -y libglu1-mesa-dev freeglut3-dev mesa-common-dev #GLU
+	sudo apt install -y libxvidcore-dev
+	sudo apt install -y libass-dev
+	sudo apt install -y libvorbis-dev
+	sudo apt install -y libsdl2-dev
+  sudo apt install -y libtheora-dev
+  sudo apt install -y libchromaprint-dev
+  sudo apt install -y frei0r-plugins-dev
 
   sudo apt install -y \
   libgnutls28-dev \
