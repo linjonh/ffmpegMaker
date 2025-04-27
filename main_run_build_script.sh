@@ -228,27 +228,11 @@ function installLibs(){
   instalLlibvpl
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
 }
-
-function make_linux_ffmpeg(){
-  #预编译和安装glew
-  echo "===>预编译和安装glew..."
-  make_linux_glew $PROJECT_BASE_DIR  
-  #编译Linux平台
-  echo "===>.configure 编译Linux平台 ..."
-  #在ffmpeg-source里配置 configure   #安装依赖库类库
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source 
-  installLibs 
-  echo "===>所有依赖安装完，开始编译" 
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source && pwd
-  export CC="gcc -std=c17"
-  prefix=$3
-  echo "所有参数：$@"
-  echo "查看prefix=$prefix"
-  if [[ $prefix == "" ]];then
-    prefix=/usr
-  fi
-  ./configure \
-    --prefix=$prefix \
+function config_ffmpeg(){
+    echo "===>config_ffmpeg所有参数 $@ "
+    echo "===>config_ffmpeg第一个 $1"
+    ./configure \
+    --prefix=$1 \
     --extra-version=0ubuntu0.22.04.1 \
     --toolchain=hardened \
     --libdir=/usr/lib/x86_64-linux-gnu \
@@ -342,19 +326,43 @@ function make_linux_ffmpeg(){
   #     --enable-sdl2 \
   #     --disable-shared \
   #     --enable-static
+}
+
+function make_linux_ffmpeg(){
+  #预编译和安装glew
+  echo "===>预编译和安装glew..."
+  make_linux_glew $PROJECT_BASE_DIR  
+  #编译Linux平台
+  echo "===>.configure 编译Linux平台 ..."
+  #在ffmpeg-source里配置 configure   #安装依赖库类库
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source 
+  installLibs 
+  echo "===>所有依赖安装完，开始编译" 
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source && pwd
+  export CC="gcc -std=c17"
+  prefix=$3
+  echo "所有参数：$@"
+  echo "查看prefix=$prefix"
+  if [[ $prefix == "" ]];then
+    prefix=/usr/local
+  fi
+  #开始配置和编译
+  config_ffmpeg $prefix
   sudo make clean #&& sudo make distclean
   echo "===>查看config log 50条"
   tail -n 50 ffbuild/config.log
   echo "===>make 编译Linux平台"
   make -j$(nproc)
-  echo "查看生成目录的./ffmpeg -version"
+
+  echo "===>查看生成目录的./ffmpeg -version"
   ./ffmpeg -version
-  echo "查看生成目录的which ffmpeg的ffmpeg -version"
+  echo "===>查看生成目录的which ffmpeg的ffmpeg -version"
   which ffmpeg
   ffmpeg -version
-  equal= $([[ $2 == "install-linux" ]])
-  echo "第二个命令参数： $2 ,相等于install-linux? :  $equal"
+  equal= [[ $2 == "install-linux" ]]
+  echo "===>第二个命令参数： $2 ,相等于install-linux? :  $equal"
   if $equal;then
+    echo "相等于install-linux=true"
     install_linux_ffmpeg
   fi
 }
