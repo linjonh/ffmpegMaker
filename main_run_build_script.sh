@@ -49,7 +49,7 @@ function installAom(){
   sudo apt install -y cmake ninja-build build-essential git
 
   # 克隆 aom 最新源码
-  git clone https://aomedia.googlesource.com/aom
+  [[ ! -e aom ]] && git clone https://aomedia.googlesource.com/aom
   cd aom
 
   # 建立构建目录
@@ -69,7 +69,7 @@ function installAom(){
   # 确认版本
   pkg-config --modversion aom
   cd .. && pwd
-  rm -rf aom
+  # rm -rf aom
 }
 
 function installDav1d(){
@@ -86,7 +86,7 @@ function installDav1d(){
   sudo apt install -y nasm
 
   # 克隆 dav1d 最新源码
-  git clone https://gh-proxy.com/github.com/videolan/dav1d.git
+  [[ ! -e dav1d ]] && git clone https://gh-proxy.com/github.com/videolan/dav1d.git
   cd dav1d
 
   # 编译并安装
@@ -100,7 +100,7 @@ function installDav1d(){
   # 验证版本
   pkg-config --modversion dav1d
   cd .. && pwd
-  rm -rf dav1d
+  # rm -rf dav1d
 }
 
 function installZimg(){
@@ -108,7 +108,7 @@ function installZimg(){
 
   sudo apt install -y autoconf automake
 
-  git clone https://gh-proxy.com/github.com/sekrit-twc/zimg.git
+  [[ ! -e zimg ]] && git clone https://gh-proxy.com/github.com/sekrit-twc/zimg.git
   cd zimg
   git checkout release-2.7
   sudo make clean
@@ -117,7 +117,7 @@ function installZimg(){
   make -j$(nproc)
   sudo make install
   cd .. && pwd
-  rm -rf zimg
+  # rm -rf zimg
 }
 
 function instalLlibvpl(){
@@ -142,7 +142,7 @@ function instalLlibvpl(){
 function installLibs(){
   sudo add-apt-repository -y ppa:jonathonf/ffmpeg-4
 	sudo apt update
-  sudo apt install -y build-esantial
+  sudo apt install -y build-essential
   sudo apt install -y yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
   sudo apt install -y libglu1-mesa-dev freeglut3-dev mesa-common-dev #GLU
 	sudo apt install -y libxvidcore-dev
@@ -152,78 +152,75 @@ function installLibs(){
   sudo apt install -y libtheora-dev
   sudo apt install -y libchromaprint-dev
   sudo apt install -y frei0r-plugins-dev
+  sudo apt install -y ladspa-sdk
+  sudo apt install -y libgnutls28-dev
+  sudo apt install -y libaom-dev 
+  sudo apt install -y  libass-dev 
+  sudo apt install -y  libbluray-dev 
+  sudo apt install -y  libbs2b-dev 
+  sudo apt install -y  libcaca-dev 
+  sudo apt install -y  libcdio-dev 
+  sudo apt install -y  libcodec2-dev 
+  sudo apt install -y  flite1-dev 
+  sudo apt install -y  libfontconfig1-dev 
+  sudo apt install -y  libfreetype6-dev 
+  sudo apt install -y  libfribidi-dev 
+  sudo apt install -y  libgme-dev 
+  sudo apt install -y  libgsm1-dev 
+  sudo apt install -y  libjack-jackd2-dev 
+  sudo apt install -y  libmp3lame-dev 
+  sudo apt install -y  libmysofa-dev 
+  sudo apt install -y  libopenjp2-7-dev 
+  sudo apt install -y  libopenmpt-dev 
+  sudo apt install -y  libopus-dev 
+  sudo apt install -y  libpulse-dev 
+  sudo apt install -y  librabbitmq-dev 
+  sudo apt install -y  librubberband-dev 
+  sudo apt install -y  libshine-dev 
+  sudo apt install -y  libsnappy-dev 
+  sudo apt install -y  libsoxr-dev 
+  sudo apt install -y  libspeex-dev 
+  sudo apt install -y  libsrt-openssl-dev #出错的地方libsrt-dev是找不到的
+  sudo apt install -y  libssh-dev 
+  sudo apt install -y  libtheora-dev 
+  sudo apt install -y  libtwolame-dev 
+  sudo apt install -y  libvidstab-dev 
+  sudo apt install -y  libvorbis-dev 
+  sudo apt install -y  libvpx-dev 
+  sudo apt install -y  libwebp-dev 
+  sudo apt install -y  libx265-dev 
+  sudo apt install -y  libxml2-dev 
+  sudo apt install -y  libxvidcore-dev 
+  sudo apt install -y  libzmq3-dev 
+  sudo apt install -y  libzvbi-dev 
+  sudo apt install -y  lv2-dev 
+  sudo apt install -y  libomxil-bellagio-dev 
+  sudo apt install -y  libopenal-dev 
+  sudo apt install -y  ocl-icd-opencl-dev 
+  sudo apt install -y  libgl-dev 
+  sudo apt install -y  libsdl2-dev 
+  sudo apt install -y  pocketsphinx 
+  sudo apt install -y  libsphinxbase-dev 
+  sudo apt install -y  librsvg2-dev 
+  sudo apt install -y  libmfx-dev 
+  sudo apt install -y  libdc1394-dev # 出错的地方libdc1394-22-dev是找不到的
+  sudo apt install -y  libdrm-dev 
+  sudo apt install -y  libiec61883-dev 
+  sudo apt install -y  libchromaprint-dev 
+  sudo apt install -y  frei0r-plugins-dev 
+  sudo apt install -y  libx264-dev 
+  sudo apt install -y  libaom-dev 
+  sudo apt install -y  liblilv-dev 
+  sudo apt install -y  libraw1394-dev 
+  sudo apt install -y  libavc1394-dev 
+  sudo apt install -y  libpocketsphinx-dev 
+  sudo apt install -y  libcdio-dev 
+  sudo apt install -y  libcdio-paranoia-dev
+  sudo apt install -y libzimg-dev
+  sudo apt install -y lilv-utils liblilv-dev #修复lilv-0 not found using pkg-config
 
-  sudo apt install -y \
-  libgnutls28-dev \
-  ladspa-sdk \
-  libaom-dev \
-  libass-dev \
-  libbluray-dev \
-  libbs2b-dev \
-  libcaca-dev \
-  libcdio-dev \
-  libcodec2-dev \
-  flite1-dev \
-  libfontconfig1-dev \
-  libfreetype6-dev \
-  libfribidi-dev \
-  libgme-dev \
-  libgsm1-dev \
-  libjack-jackd2-dev \
-  libmp3lame-dev \
-  libmysofa-dev \
-  libopenjp2-7-dev \
-  libopenmpt-dev \
-  libopus-dev \
-  libpulse-dev \
-  librabbitmq-dev \
-  librubberband-dev \
-  libshine-dev \
-  libsnappy-dev \
-  libsoxr-dev \
-  libspeex-dev \
-  libsrt-dev \
-  libssh-dev \
-  libtheora-dev \
-  libtwolame-dev \
-  libvidstab-dev \
-  libvorbis-dev \
-  libvpx-dev \
-  libwebp-dev \
-  libx265-dev \
-  libxml2-dev \
-  libxvidcore-dev \
-  libzmq3-dev \
-  libzvbi-dev \
-  lv2-dev \
-  libomxil-bellagio-dev \
-  libopenal-dev \
-  ocl-icd-opencl-dev \
-  libgl-dev \
-  libsdl2-dev \
-  pocketsphinx \
-  libsphinxbase-dev \
-  librsvg2-dev \
-  libmfx-dev \
-  libdc1394-22-dev \
-  libdrm-dev \
-  libiec61883-dev \
-  libchromaprint-dev \
-  frei0r-plugins-dev \
-  libx264-dev \
-  libaom-dev \
-  liblilv-dev \
-  libraw1394-dev \
-  libavc1394-dev \
-  libpocketsphinx-dev \
-  libcdio-dev \
-  libcdio-paranoia-dev
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source
-  installAom
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
   installDav1d
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source
-  installZimg
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
   instalLlibvpl
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
@@ -231,9 +228,10 @@ function installLibs(){
 function config_ffmpeg(){
     echo "===>config_ffmpeg所有参数 $@ "
     echo "===>config_ffmpeg第一个 $1"
+    linux=$(cat /etc/issue | sed 's/\\n//g' | sed 's/\\l//g')
     ./configure \
     --prefix=$1 \
-    --extra-version=0ubuntu0.22.04.1 \
+    --extra-version="$linux" \
     --toolchain=hardened \
     --libdir=/usr/lib/x86_64-linux-gnu \
     --incdir=/usr/include/x86_64-linux-gnu \
@@ -299,10 +297,11 @@ function config_ffmpeg(){
     --enable-frei0r \
     --enable-libx264 \
     \
-    --enable-shared \
+    --disable-shared \
+    --enable-static \
     --enable-filter=gltransition \
     --extra-libs='-lGLEW -lEGL' \
-    --enable-cross-compile
+    --enable-cross-compile 
 
   # ./configure \
   #     --prefix=/usr/local \
@@ -344,11 +343,13 @@ function make_linux_ffmpeg(){
   echo "所有参数：$@"
   echo "查看prefix=$prefix"
   if [[ $prefix == "" ]];then
-    prefix=/usr/local
+    prefix=/usr
   fi
   #开始配置和编译
+  sudo make distclen && 2>dev/null
+  sudo make clean && 2>dev/null
   config_ffmpeg $prefix
-  sudo make clean #&& sudo make distclean
+  #&& sudo make distclean
   echo "===>查看config log 50条"
   tail -n 50 ffbuild/config.log
   echo "===>make 编译Linux平台"
@@ -359,9 +360,9 @@ function make_linux_ffmpeg(){
   echo "===>查看生成目录的which ffmpeg的ffmpeg -version"
   which ffmpeg
   ffmpeg -version
-  equal= [[ $2 == "install-linux" ]]
-  echo "===>第二个命令参数： $2 ,相等于install-linux? :  $equal"
-  if $equal;then
+
+  echo "===>第二个命令参数： $2 ,相等于install-linux?"
+  if [[ $2 == "install-linux" ]];then
     echo "相等于install-linux=true"
     install_linux_ffmpeg
   fi
