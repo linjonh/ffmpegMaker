@@ -1,12 +1,12 @@
 # ffmpegMaker
 ffmpeg Maker
-
-# 为当前目录和子目录的sh文件添加运行权限
+# 1、使用自动编译方式
+## 为当前目录和子目录的sh文件添加运行权限
 ```bash
 find . -type f -name "*.sh" -exec chmod +x {} \;
 ```
 
-# 运行自动安装脚本：
+## 运行自动安装脚本：
 linux
 ```bash
 ./main_run_build_script.sh build-linux
@@ -15,17 +15,17 @@ linux
 ```bash
 ./main_run_build_script.sh build-arm64
 ```
-# 安装ffmpeg
+#@ 安装ffmpeg
 linux: 
 ```bash
 ./main_run_build_script.sh install-linux 
 ```
-# 其他组合方式
+## 其他组合方式
 ```bash
 #三个参数一起时，最后一个是安装路径
 ./main_run_build_script.sh build-linux install-linux /usr/local
 ```
-# 注意事项
+## 注意事项
 glew 编译容易出错的地方
 config/config.guess
 ```bash 
@@ -45,12 +45,12 @@ endif
 ```
 
 
-# 编译，安装和默认安装路径
+## 编译，安装和默认安装路径
 linux
 ```bash
 ./main_run_build_script.sh build-linux install-linux /usr/local
 ```
-# 手动编译安装ffmpeg
+# 2、手动编译安装ffmpeg
 
 ```bash
 make clean && make distclen && 2>dev/null
@@ -135,7 +135,7 @@ sudo make install
 ```
 
 
-# 当安装依赖库过程是 `apt` 或其他包管理工具在执行安装或更新后触发的服务重启和系统扫描步骤。这个过程通常涉及：
+# 3、当安装依赖库过程是 `apt` 或其他包管理工具在执行安装或更新后触发的服务重启和系统扫描步骤。这个过程通常涉及：
 
 - **扫描已安装的包和系统服务**：这包括扫描文档、处理微码、检查内核镜像和其他包。
 - **延迟服务重启**：有些服务不会立即重启，而是会在稍后的时候进行重启，除非你手动触发重启。
