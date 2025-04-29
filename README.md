@@ -1,6 +1,6 @@
 # ffmpegMaker
 ffmpeg Maker
-# 1、使用自动编译方式
+# 1、使用自动脚本运行方式
 ## 为当前目录和子目录的sh文件添加运行权限
 ```bash
 find . -type f -name "*.sh" -exec chmod +x {} \;
@@ -50,7 +50,7 @@ linux
 ```bash
 ./main_run_build_script.sh build-linux install-linux /usr/local
 ```
-# 2、手动编译安装ffmpeg
+# 2、手动输入运行指令方式编译安装ffmpeg
 
 ```bash
 make clean && make distclen && 2>dev/null
