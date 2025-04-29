@@ -6,7 +6,7 @@ ffmpeg Maker
 find . -type f -name "*.sh" -exec chmod +x {} \;
 ```
 
-# 运行脚本：
+# 运行自动安装脚本：
 linux
 ```bash
 ./main_run_build_script.sh build-linux
@@ -18,11 +18,12 @@ linux
 # 安装ffmpeg
 linux: 
 ```bash
-./main_run_build_script.sh install-linux
+./main_run_build_script.sh install-linux 
 ```
 # 其他组合方式
 ```bash
-./main_run_build_script.sh build-linux install-linux 
+#三个参数一起时，最后一个是安装路径
+./main_run_build_script.sh build-linux install-linux /usr/local
 ```
 # 注意事项
 glew 编译容易出错的地方
