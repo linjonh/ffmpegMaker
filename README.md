@@ -20,7 +20,10 @@ linux:
 ```bash
 ./main_run_build_script.sh install-linux
 ```
-
+# 其他组合方式
+```bash
+./main_run_build_script.sh build-linux install-linux 
+```
 # 注意事项
 glew 编译容易出错的地方
 config/config.guess
