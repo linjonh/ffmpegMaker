@@ -41,6 +41,17 @@ function make_linux_glew(){
   #安装
   echo "===>安装glew"
   sudo make install && 2>/dev/null #&& 0<lin
+  echo "===>add lib64 to path"
+  # 检查 ~/.bashrc 是否已经包含 /usr/lib64
+  if ! grep -E '^export LD_LIBRARY_PATH=.*/usr/lib64' ~/.bashrc; then
+      echo 'export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+      echo "已添加 /usr/lib64 到 LD_LIBRARY_PATH"
+  else
+      echo "/usr/lib64 已存在于 LD_LIBRARY_PATH 中，无需重复添加"
+  fi
+  # 立即生效
+  source ~/.bashrc
+
 }
 
 function installAom(){
