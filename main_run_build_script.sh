@@ -31,7 +31,7 @@ for submodule in $submodules; do
     exit 1
   else
     cd $submodule
-    if [ $submodule=="ffmpeg-source" ];then
+    if [ $submodule == "ffmpeg-source" ];then
       git pull origin release/7.1 --rebase
     else
       git pull origin main --rebase
@@ -39,7 +39,6 @@ for submodule in $submodules; do
     cd - > /dev/null
   fi
 done
-
 export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目目录：$PROJECT_BASE_DIR"
 
 function make_linux_glew(){
