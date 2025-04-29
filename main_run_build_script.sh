@@ -153,7 +153,7 @@ function instalLlibvpl(){
 function installLibs(){
   sudo add-apt-repository -y ppa:jonathonf/ffmpeg-4
 	sudo apt update
-  sudo apt install -y build-essential
+  sudo apt install -y cmake build-essential
   sudo apt install -y yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
   sudo apt install -y libglu1-mesa-dev freeglut3-dev mesa-common-dev #GLU
 	sudo apt install -y libxvidcore-dev
@@ -230,10 +230,13 @@ function installLibs(){
   sudo apt install -y libzimg-dev
   sudo apt install -y lilv-utils liblilv-dev #修复lilv-0 not found using pkg-config
 
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source
-  installDav1d
-  cd ${PROJECT_BASE_DIR}/ffmpeg-source
-  instalLlibvpl
+
+  # cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  # installDav1d
+  # cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  # instalLlibvpl
+  sudo apt install -y libdav1d-dev
+  sudo apt install -y libvpl-dev
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
 }
 function config_ffmpeg(){
