@@ -9,7 +9,8 @@ need_update=false
 
 for submodule in $submodules; do
   # 检查子模块目录是否存在且包含 .git 文件夹
-  if [ ! -d "$submodule/.git" ]; then
+  file "$submodule/.git"
+  if [ ! -e "$submodule/.git" ]; then
     echo "子模块 $submodule 目录不存在或未初始化"
     need_update=true
   fi
@@ -24,15 +25,19 @@ fi
 
 for submodule in $submodules; do
   # 再次检查子模块目录是否存在且包含 .git 文件夹
-  if [ ! -d "$submodule/.git" ]; then
+  file "$submodule/.git"
+  if [ ! -e "$submodule/.git" ]; then
     echo "子模块 $submodule 目录不存在或未初始化"
     exit 1
-  else:
+  else
     cd $submodule
-    git pull --rebase
-    cd ..
+    if [ $submodule=="ffmpeg-source" ];then
+      git pull origin release/7.1 --rebase
+    else
+      git pull origin main --rebase
+    fi
+    cd - > /dev/null
   fi
-
 done
 
 export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目目录：$PROJECT_BASE_DIR"
@@ -247,10 +252,10 @@ function installLibs(){
 
   # cd ${PROJECT_BASE_DIR}/ffmpeg-source
   # installDav1d
-  # cd ${PROJECT_BASE_DIR}/ffmpeg-source
-  # instalLlibvpl
+  cd ${PROJECT_BASE_DIR}/ffmpeg-source
+  instalLlibvpl
   sudo apt install -y libdav1d-dev
-  sudo apt install -y libvpl-dev
+  # sudo apt install -y libvpl-dev
   cd ${PROJECT_BASE_DIR}/ffmpeg-source
 }
 function config_ffmpeg(){
