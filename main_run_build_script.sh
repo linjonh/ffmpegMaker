@@ -22,6 +22,19 @@ else
   echo "所有子模块目录均已存在，跳过下载。"
 fi
 
+for submodule in $submodules; do
+  # 再次检查子模块目录是否存在且包含 .git 文件夹
+  if [ ! -d "$submodule/.git" ]; then
+    echo "子模块 $submodule 目录不存在或未初始化"
+    exit 1
+  else:
+    cd $submodule
+    git pull --rebase
+    cd ..
+  fi
+
+done
+
 export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目目录：$PROJECT_BASE_DIR"
 
 function make_linux_glew(){
@@ -41,6 +54,8 @@ function make_linux_glew(){
   #安装
   echo "===>安装glew"
   sudo make install && 2>/dev/null #&& 0<lin
+}
+function addLib64Path(){
   echo "===>add lib64 to path"
   # 检查 ~/.bashrc 是否已经包含 /usr/lib64
   if ! grep -E '^export LD_LIBRARY_PATH=.*/usr/lib64' ~/.bashrc; then
@@ -53,7 +68,6 @@ function make_linux_glew(){
   source ~/.bashrc
 
 }
-
 function installAom(){
   # 安装必要工具
   sudo apt update
@@ -345,6 +359,7 @@ function make_linux_ffmpeg(){
   #预编译和安装glew
   echo "===>预编译和安装glew..."
   make_linux_glew $PROJECT_BASE_DIR  
+  addLib64Path
   #编译Linux平台
   echo "===>.configure 编译Linux平台 ..."
   #在ffmpeg-source里配置 configure   #安装依赖库类库
