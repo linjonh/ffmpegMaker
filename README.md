@@ -129,3 +129,81 @@ make -j$(nproc)
 
 sudo make install
 ```
+
+
+# 当安装依赖库过程是 `apt` 或其他包管理工具在执行安装或更新后触发的服务重启和系统扫描步骤。这个过程通常涉及：
+
+- **扫描已安装的包和系统服务**：这包括扫描文档、处理微码、检查内核镜像和其他包。
+- **延迟服务重启**：有些服务不会立即重启，而是会在稍后的时候进行重启，除非你手动触发重启。
+
+如果你希望避免这些“Scanning”提示和过程的干扰，下面有几种方法可以尝试：
+
+### 1. **禁用 `man-db` 执行扫描**  
+`man-db` 是用于处理手册页的工具。你可以通过禁用 `man-db` 扫描来减少这类提示。编辑 `/etc/apt/apt.conf.d/99disable-man-db` 文件：
+
+```bash
+sudo nano /etc/apt/apt.conf.d/99disable-man-db
+```
+
+然后加入以下内容：
+
+```plaintext
+DPkg::Post-Invoke { "test -x /usr/bin/mandb && /usr/bin/mandb --no-purge"; };
+```
+
+这会在安装后禁止手册页数据库的自动更新。
+
+### 2. **禁用 `needrestart` 的扫描**  
+`needrestart` 是一个检查哪些进程需要重启的工具。你可以禁用 `needrestart` 的扫描功能，从而避免在每次安装包后扫描进程。编辑 `/etc/needrestart/needrestart.conf` 文件：
+
+```bash
+sudo nano /etc/needrestart/needrestart.conf
+```
+
+找到并设置：
+
+```plaintext
+$nrconf{restart} = 'none';
+```
+
+这会禁用自动重启检查和进程扫描。
+
+### 3. **禁用内核镜像扫描**  
+如果你看到的是“Scanning linux images...”提示，并且不希望看到这类提示，你可以禁用内核镜像的扫描。编辑 `/etc/apt/apt.conf.d/99disable-kernel-scanning` 文件：
+
+```bash
+sudo nano /etc/apt/apt.conf.d/99disable-kernel-scanning
+```
+
+并添加以下内容：
+
+```plaintext
+DPkg::Post-Invoke { "test -x /usr/sbin/update-initramfs && /usr/sbin/update-initramfs -u"; };
+```
+
+这样做会阻止内核镜像的扫描过程。
+
+### 4. **自动接受所有服务重启**  
+如果你不想每次都看到有关“系统服务重启”的提示，可以使用 `systemctl` 自动重启这些服务。你可以创建一个脚本来在安装后自动重启这些服务，而不提示用户。比如创建一个脚本 `auto-restart-services.sh`，内容如下：
+
+```bash
+#!/bin/bash
+systemctl restart ModemManager.service
+systemctl restart auditd.service
+systemctl restart docker.service
+# 继续添加你想要自动重启的服务
+```
+
+然后在安装后自动运行此脚本，避免手动操作。
+
+### 5. **使用非交互模式进行安装**  
+确保你使用了 `DEBIAN_FRONTEND=noninteractive` 环境变量来避免弹出任何交互式提示。例如：
+
+```bash
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+```
+
+这会让系统在安装过程中不显示任何提示。
+
+### 总结  
+这些方法可以帮助你减少或消除在 `apt` 安装过程中出现的“Scanning”提示，特别是与内核、进程和服务重启相关的部分。
