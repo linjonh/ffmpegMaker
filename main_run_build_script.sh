@@ -19,20 +19,20 @@ done
 
 if [ "$need_update" = true ]; then
   echo "正在初始化并更新子模块..."
-  git submodule update --init --recursive
+  # git submodule update --init --recursive
 
   # 手动clone 子模块 urls，模块名从submodules读取
   
-  # for submodule in $submodules; do
-  #   # 检查子模块目录是否存在且包含 .git 文件夹
-  #   file "$submodule/.git"
-  #   if [ ! -e "$submodule/.git" ]; then
-  #     echo "正在下载子模块 $submodule ..."
-  #     # 获取对应的 URL
-  #     url=$(echo "$urls" | sed -n "${i}p")
-  #     git clone "$url" "$submodule" --force
-  #   fi
-  # done
+  for submodule in $submodules; do
+    # 检查子模块目录是否存在且包含 .git 文件夹
+    file "$submodule/.git"
+    if [ ! -e "$submodule/.git" ]; then
+      echo "正在下载子模块 $submodule ..."
+      # 获取对应的 URL
+      url=$(echo "$urls" | sed -n "${i}p")
+      git clone "$url" "$submodule" --force
+    fi
+  done
   
 else
   echo "所有子模块目录均已存在，跳过下载。"
