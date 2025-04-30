@@ -30,7 +30,7 @@ if [ "$need_update" = true ]; then
       echo "正在下载子模块 $submodule ..."
       # 获取对应的 URL
       url=$(echo "$urls" | sed -n "${i}p")
-      git clone "$url" "$submodule" --force
+      git clone "$url" "$submodule" 
     fi
   done
   
