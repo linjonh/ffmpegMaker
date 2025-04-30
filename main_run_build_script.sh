@@ -45,13 +45,13 @@ for submodule in $submodules; do
     echo "子模块 $submodule 目录不存在或未初始化"
     exit 1
   else
-    cd $submodule
+    cd $submodule || exit
     if [ $submodule == "ffmpeg-source" ];then
       git pull origin release/7.1 --rebase
     else
       git pull origin main --rebase
     fi
-    cd - > /dev/null
+    cd - > /dev/null || exit
   fi
 done
 export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目目录：$PROJECT_BASE_DIR"
