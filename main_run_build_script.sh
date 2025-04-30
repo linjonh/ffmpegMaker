@@ -115,7 +115,7 @@ function installDav1d(){
   sudo apt install -y nasm
 
   # 克隆 dav1d 最新源码
-  [[ ! -e dav1d ]] && git clone https://github.com/videolan/dav1d.git
+  [[ ! -e dav1d ]] && git clone https://gh-proxy.com/github.com/videolan/dav1d.git
   cd dav1d
 
   # 编译并安装
@@ -152,8 +152,8 @@ function installZimg(){
 function instalLlibvpl(){
   echo "===> instalLlibvpl"
   rm -rf v2.14.0.tar.gz 
-  wget https://github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
-  tar -xf v2.14.0.tar.gz
+  wget -O libvpl.tar.gz https://gh-proxy.com/github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
+  tar -xf libvpl.tar.gz
   cd libvpl-2.14.0 && pwd
   [[ ! -e build ]] && mkdir build
   cd build
