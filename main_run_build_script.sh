@@ -30,6 +30,7 @@ if [ "$need_update" = true ]; then
       echo "正在下载子模块 $submodule ..."
       # 获取对应的 URL
       url=$(echo "$urls" | sed -n "${i}p")
+      rm -rf "$submodule" # 删除旧的子模块目录
       git clone "$url" "$submodule" 
     fi
   done
