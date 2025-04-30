@@ -88,7 +88,10 @@ function addLib64Path(){
     fi
     # 立即生效
     source ~/.bashrc
-    
+    # 添加 /usr/lib64 到 linker 搜索路径
+    echo "/usr/lib64" | sudo tee /etc/ld.so.conf.d/glew.conf
+    sudo ldconfig
+
 }
 function installAom(){
     # 安装必要工具
