@@ -172,9 +172,12 @@ function installZimg(){
 
 function instalLlibvpl(){
     echo "===> instalLlibvpl"
-    rm -rf v2.14.0.tar.gz
-    wget -O libvpl.tar.gz https://gh-proxy.com/github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
-    tar -xf libvpl.tar.gz
+    if [[ ! -e libvpl-2.14.0 ]]; then
+        if [[ ! -e libvpl.tar.gz ]]; then
+        wget -O libvpl.tar.gz https://gh-proxy.com/github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
+        tar -xf libvpl.tar.gz
+        fi
+    fi
     cd libvpl-2.14.0 && pwd
     [[ ! -e build ]] && mkdir build
     cd build
