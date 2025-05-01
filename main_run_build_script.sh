@@ -400,8 +400,8 @@ function make_linux_ffmpeg(){
         prefix=/usr
     fi
     #开始配置和编译
-    sudo make distclen && 2>dev/null
-    sudo make clean && 2>dev/null
+    sudo make distclen || true 2>/dev/null
+    sudo make clean || true 2>/dev/null
     config_ffmpeg $prefix
     #&& sudo make distclean
     echo "===>查看config log 50条"
