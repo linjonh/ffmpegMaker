@@ -4,7 +4,7 @@ echo all args: $@
 # 获取所有子模块路径
 submodules=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
 urls=$(git config --file .gitmodules --get-regexp url | awk '{ print $2 }')
-echo "获取所有子模块路径:"$submodules
+echo "➡️ 获取所有子模块路径:"$submodules
 
 need_update=false
 
@@ -12,13 +12,13 @@ for submodule in $submodules; do
     # 检查子模块目录是否存在且包含 .git 文件夹
     file "$submodule/.git"
     if [ ! -e "$submodule/.git" ]; then
-        echo "子模块 $submodule 目录不存在或未初始化"
+        echo "➡️ 子模块 $submodule 目录不存在或未初始化"
         need_update=true
     fi
 done
 
 if [ "$need_update" = true ]; then
-    echo "正在初始化并更新子模块..."
+    echo "➡️ 正在初始化并更新子模块..."
     # git submodule update --init --recursive
     
     # 手动clone 子模块 urls，模块名从submodules读取
@@ -29,7 +29,7 @@ if [ "$need_update" = true ]; then
             # 获取对应的 URL
             url=$(echo "$urls" | sed -n "${i}p" | tr -d '\r\n')
             
-            echo "正在下载子模块 $submodule : $url"
+            echo "➡️ 正在下载子模块 $submodule : $url"
             
             rm -rf "$submodule"
             git clone "$url" "$submodule"
@@ -38,14 +38,14 @@ if [ "$need_update" = true ]; then
     done
     
 else
-    echo "所有子模块目录均已存在，跳过下载。"
+    echo "✅  所有子模块目录均已存在，跳过下载。"
 fi
 
 for submodule in $submodules; do
     # 再次检查子模块目录是否存在且包含 .git 文件夹
     file "$submodule/.git"
     if [ ! -e "$submodule/.git" ]; then
-        echo "子模块 $submodule 目录不存在或未初始化"
+        echo "➡️ 子模块 $submodule 目录不存在或未初始化"
         exit 1
     else
         cd $submodule || exit
@@ -62,29 +62,29 @@ export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目�
 function make_linux_glew(){
     #进入glew目录
     
-    echo cpu核心数：$(nproc)
+    echo "➡️ cpu核心数：$(nproc)"
     #安装依赖库,sudo 需要输入密码 && 0<lin /home/aigc/.wk/ffmaker/ffmpegMaker/main_run_build_script.sh
-    echo "===>安装glew依赖库"
+    echo "➡️ 安装glew依赖库"
     sudo apt install -y libegl1-mesa-dev && 2>/dev/null #&& 0<lin
     #预先编译auto目录的
     cd $1/glew/auto
     make PYTHON=python3 -j$(nproc)
     #开始编译
     cd $1/glew
-    echo "===>开始编译glew"
+    echo "➡️ 开始编译glew"
     sudo make clean && make SYSTEM=linux-egl -j$(nproc)
     #安装
-    echo "===>安装glew"
+    echo "➡️ 安装glew"
     sudo make install && 2>/dev/null #&& 0<lin
 }
 function addLib64Path(){
-    echo "===>add lib64 to path"
+    echo "➡️ add lib64 to path"
     # 检查 ~/.bashrc 是否已经包含 /usr/lib64
     if ! grep -E '^export LD_LIBRARY_PATH=.*/usr/lib64' ~/.bashrc; then
         echo 'export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-        echo "已添加 /usr/lib64 到 LD_LIBRARY_PATH"
+        echo "✅ 已添加 /usr/lib64 到 LD_LIBRARY_PATH"
     else
-        echo "/usr/lib64 已存在于 LD_LIBRARY_PATH 中，无需重复添加"
+        echo "✅ /usr/lib64 已存在于 LD_LIBRARY_PATH 中，无需重复添加"
     fi
     # 立即生效
     source ~/.bashrc
@@ -171,7 +171,7 @@ function installZimg(){
 }
 
 function instalLlibvpl(){
-    echo "===> instalLlibvpl"
+    echo "➡️  instalLlibvpl"
     if [[ ! -e libvpl-2.14.0 ]]; then
         if [[ ! -e libvpl.tar.gz ]]; then
         wget -O libvpl.tar.gz https://gh-proxy.com/github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
@@ -187,12 +187,21 @@ function instalLlibvpl(){
     echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/libvpl.conf
     sudo ldconfig
     pkg-config --modversion vpl
-    echo "instalLlibvpl 安装完成"
+    echo "✅ instalLlibvpl 安装完成"
     cd .. && pwd
     rm -rf libvpl-2.14.0
 }
 
 function installLibs(){
+    #预编译和安装glew
+    echo "➡️ 预编译和安装glew..."
+    make_linux_glew $PROJECT_BASE_DIR
+    addLib64Path
+    #编译Linux平台
+    echo "➡️ .configure 编译Linux平台 ..."
+    #在ffmpeg-source里配置 configure   #安装依赖库类库
+    cd ${PROJECT_BASE_DIR}/ffmpeg-source
+
     sudo add-apt-repository -y ppa:ubuntuhandbook1/ffmpeg7
     sudo apt update
     sudo apt install -y cmake build-essential
@@ -270,6 +279,7 @@ function installLibs(){
     sudo apt install -y  libcdio-dev
     sudo apt install -y  libcdio-paranoia-dev
     sudo apt install -y libzimg-dev
+    sudo apt install -y libpgm-dev
     sudo apt install -y lilv-utils liblilv-dev #修复lilv-0 not found using pkg-config
     
     
@@ -282,8 +292,8 @@ function installLibs(){
     cd ${PROJECT_BASE_DIR}/ffmpeg-source
 }
 function config_ffmpeg(){
-    echo "===>config_ffmpeg所有参数 $@ "
-    echo "===>config_ffmpeg第一个 $1"
+    echo "➡️ config_ffmpeg所有参数 $@ "
+    echo "➡️ config_ffmpeg第一个 $1"
     linux=$(cat /etc/issue | sed 's/\\n//g' | sed 's/\\l//g')
     ./configure \
     --prefix=$1 \
@@ -384,16 +394,8 @@ function config_ffmpeg(){
 }
 
 function make_linux_ffmpeg(){
-    #预编译和安装glew
-    echo "===>预编译和安装glew..."
-    make_linux_glew $PROJECT_BASE_DIR
-    addLib64Path
-    #编译Linux平台
-    echo "===>.configure 编译Linux平台 ..."
-    #在ffmpeg-source里配置 configure   #安装依赖库类库
-    cd ${PROJECT_BASE_DIR}/ffmpeg-source
     installLibs
-    echo "===>所有依赖安装完，开始编译"
+    echo "➡️ 所有依赖安装完，开始编译"
     cd ${PROJECT_BASE_DIR}/ffmpeg-source && pwd
     export CC="gcc -std=c17"
     prefix=$3
@@ -407,32 +409,31 @@ function make_linux_ffmpeg(){
     sudo make clean || true 2>/dev/null
     config_ffmpeg $prefix
     #&& sudo make distclean
-    echo "===>查看config log 50条"
-    tail -n 50 ffbuild/config.log
-    echo "===>make 编译Linux平台"
+    # echo "➡️ 查看config log 50条"
+    # tail -n 50 ffbuild/config.log
+    echo "➡️ make 编译Linux平台"
     make -j$(nproc)
     
-    echo "===>查看生成目录的./ffmpeg -version"
+    echo "➡️ 查看生成目录的./ffmpeg -version"
     ./ffmpeg -version
-    echo "===>查看生成目录的which ffmpeg的ffmpeg -version"
+    echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
     which ffmpeg
     ffmpeg -version
     
-    echo "===>第二个命令参数： $2 ,相等于install-linux?"
+    echo "➡️ 第二个命令参数： $2 ,相等于install-linux?"
     if [[ $2 == "install-linux" ]];then
-        echo "相等于install-linux=true"
+        echo "✅ 相等于install-linux=true"
         install_linux_ffmpeg
     fi
 }
 
 function install_linux_ffmpeg(){
     cd ${PROJECT_BASE_DIR}/ffmpeg-source
-    echo "===> 安装linux_ffmpeg"
+    echo "➡️   安装linux_ffmpeg"
     sudo make install
-    echo "===> 安装linux_ffmpeg 完成"
-    
-    echo && echo "===> 打印版本号："
-    
+    echo "✅  安装linux_ffmpeg 完成" 
+    echo && echo "➡️  打印版本号："
+    which ffmpeg
     ffmpeg -version
 }
 
@@ -441,11 +442,11 @@ function make_android_ffmpeg(){
     local_path=${PROJECT_BASE_DIR}/ffmpeg-android-maker
     cd $local_path
     #编译android ARM64平台的
-    echo "===>.configure 编译android ARM64平台 ..."
-    echo "===>docker 镜像创建"
+    echo "➡️ .configure 编译android ARM64平台 ..."
+    echo "➡️ docker 镜像创建"
     docker build -t ffmpeg-maker ./tools/docker
     #docker run
-    echo "===>docker run --rm ffmpeg-maker on dir:$(pwd)"
+    echo "➡️ docker run --rm ffmpeg-maker on dir:$(pwd)"
     docker run --rm \
     -v "${PROJECT_BASE_DIR}:/mnt/" \
     ffmpeg-maker ls /mnt
@@ -489,7 +490,7 @@ case "$1" in
         install_linux_ffmpeg
     ;;
     *)
-        echo && echo "===> 无效参数。可用的参数: build-linux, build-arm64, install-linux" && echo
+        echo && echo "➡️  无效参数。可用的参数: build-linux, build-arm64, install-linux" && echo
     ;;
 esac
 

@@ -1,5 +1,5 @@
-# ffmpegMaker
-ffmpeg Maker
+# FFmpegMaker
+
 # 1、使用自动脚本运行方式
 ## 为当前目录和子目录的sh文件添加运行权限
 ```bash
