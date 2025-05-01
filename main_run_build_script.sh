@@ -193,7 +193,7 @@ function instalLlibvpl(){
 }
 
 function installLibs(){
-    sudo add-apt-repository -y ppa:jonathonf/ffmpeg-4
+    sudo add-apt-repository -y ppa:ubuntuhandbook1/ffmpeg7
     sudo apt update
     sudo apt install -y cmake build-essential
     sudo apt install -y yasm pkg-config libx264-dev libx265-dev libfdk-aac-dev libvpx-dev libmp3lame-dev libopus-dev
