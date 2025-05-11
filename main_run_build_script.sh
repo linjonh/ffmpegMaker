@@ -1,63 +1,67 @@
 #!/bin/bash
-echo all args: $@
+echo all args: "$@"
 
-# 获取所有子模块路径
-submodules=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
-urls=$(git config --file .gitmodules --get-regexp url | awk '{ print $2 }')
-echo "➡️ 获取所有子模块路径:"$submodules
+PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目目录：$PROJECT_BASE_DIR"
+export PROJECT_BASE_DIR
 
-need_update=false
-
-for submodule in $submodules; do
-    # 检查子模块目录是否存在且包含 .git 文件夹
-    file "$submodule/.git"
-    if [ ! -e "$submodule/.git" ]; then
-        echo "➡️ 子模块 $submodule 目录不存在或未初始化"
-        need_update=true
-    fi
-done
-
-if [ "$need_update" = true ]; then
-    echo "➡️ 正在初始化并更新子模块..."
-    # git submodule update --init --recursive
+function clone_code(){
+    # 获取所有子模块路径
+    submodules=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
+    urls=$(git config --file .gitmodules --get-regexp url | awk '{ print $2 }')
+    echo "➡️ 获取所有子模块路径:$submodules"
     
-    # 手动clone 子模块 urls，模块名从submodules读取
-    i=1
+    need_update=false
+    
     for submodule in $submodules; do
-       # 检查子模块目录是否存在且包含 .git 文件夹
+        # 检查子模块目录是否存在且包含 .git 文件夹
+        file "$submodule/.git"
         if [ ! -e "$submodule/.git" ]; then
-            # 获取对应的 URL
-            url=$(echo "$urls" | sed -n "${i}p" | tr -d '\r\n')
-            
-            echo "➡️ 正在下载子模块 $submodule : $url"
-            
-            rm -rf "$submodule"
-            git clone "$url" "$submodule"
+            echo "➡️ 子模块 $submodule 目录不存在或未初始化"
+            need_update=true
         fi
-        i=$((i + 1))
     done
     
-else
-    echo "✅  所有子模块目录均已存在，跳过下载。"
-fi
-
-for submodule in $submodules; do
-    # 再次检查子模块目录是否存在且包含 .git 文件夹
-    file "$submodule/.git"
-    if [ ! -e "$submodule/.git" ]; then
-        echo "➡️ 子模块 $submodule 目录不存在或未初始化"
-        exit 1
+    if [ "$need_update" = true ]; then
+        echo "➡️ 正在初始化并更新子模块..."
+        # git submodule update --init --recursive
+        
+        # 手动clone 子模块 urls，模块名从submodules读取
+        i=1
+        for submodule in $submodules; do
+            # 检查子模块目录是否存在且包含 .git 文件夹
+            if [ ! -e "$submodule/.git" ]; then
+                # 获取对应的 URL
+                url=$(echo "$urls" | sed -n "${i}p" | tr -d '\r\n')
+                
+                echo "➡️ 正在下载子模块 $submodule : $url"
+                
+                rm -rf "$submodule"
+                git clone "$url" "$submodule"
+            fi
+            i=$((i + 1))
+        done
+        
     else
-        cd $submodule || exit
-        if [ $submodule == "ffmpeg-source" ];then
-            git pull origin release/7.1 --rebase
-        else
-            git pull origin main --rebase
-        fi
-        cd - > /dev/null || exit
+        echo "✅  所有子模块目录均已存在，跳过下载。"
     fi
-done
-export PROJECT_BASE_DIR="$(cd "$(dirname "$0")" && pwd)" && echo "当前项目目录：$PROJECT_BASE_DIR"
+    
+    for submodule in $submodules; do
+        # 再次检查子模块目录是否存在且包含 .git 文件夹
+        file "$submodule/.git"
+        if [ ! -e "$submodule/.git" ]; then
+            echo "➡️ 子模块 $submodule 目录不存在或未初始化"
+            exit 1
+        else
+            cd "$submodule" || exit
+            if [ "$submodule" == "ffmpeg-source" ];then
+                git pull origin release/7.1 --rebase
+            else
+                git pull origin main --rebase
+            fi
+            cd - > /dev/null || exit
+        fi
+    done
+}
 
 function make_linux_glew(){
     #进入glew目录
@@ -68,11 +72,11 @@ function make_linux_glew(){
     sudo apt install -y libegl1-mesa-dev && 2>/dev/null #&& 0<lin
     #预先编译auto目录的
     cd $1/glew/auto
-    make PYTHON=python3 -j$(nproc)
+    make PYTHON=python3 -j"$(nproc)"
     #开始编译
     cd $1/glew
     echo "➡️ 开始编译glew"
-    sudo make clean && make SYSTEM=linux-egl -j$(nproc)
+    sudo make clean && make SYSTEM=linux-egl -j"$(nproc)"
     #安装
     echo "➡️ 安装glew"
     sudo make install && 2>/dev/null #&& 0<lin
@@ -81,7 +85,7 @@ function addLib64Path(){
     echo "➡️ add lib64 to path"
     # 检查 ~/.bashrc 是否已经包含 /usr/lib64
     if ! grep -E '^export LD_LIBRARY_PATH=.*/usr/lib64' ~/.bashrc; then
-        echo 'export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+        echo "export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH" >> ~/.bashrc
         echo "✅ 已添加 /usr/lib64 到 LD_LIBRARY_PATH"
     else
         echo "✅ /usr/lib64 已存在于 LD_LIBRARY_PATH 中，无需重复添加"
@@ -91,7 +95,7 @@ function addLib64Path(){
     # 添加 /usr/lib64 到 linker 搜索路径
     echo "/usr/lib64" | sudo tee /etc/ld.so.conf.d/glew.conf
     sudo ldconfig
-
+    
 }
 function installAom(){
     # 安装必要工具
@@ -174,8 +178,8 @@ function instalLlibvpl(){
     echo "➡️  instalLlibvpl"
     if [[ ! -e libvpl-2.14.0 ]]; then
         if [[ ! -e libvpl.tar.gz ]]; then
-        wget -O libvpl.tar.gz https://gh-proxy.com/github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
-        tar -xf libvpl.tar.gz
+            wget -O libvpl.tar.gz https://gh-proxy.com/github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
+            tar -xf libvpl.tar.gz
         fi
     fi
     cd libvpl-2.14.0 && pwd
@@ -201,7 +205,7 @@ function installLibs(){
     echo "➡️ .configure 编译Linux平台 ..."
     #在ffmpeg-source里配置 configure   #安装依赖库类库
     cd ${PROJECT_BASE_DIR}/ffmpeg-source
-
+    
     sudo add-apt-repository -y ppa:ubuntuhandbook1/ffmpeg7
     sudo apt update
     sudo apt install -y cmake build-essential
@@ -282,6 +286,46 @@ function installLibs(){
     sudo apt install -y libpgm-dev
     sudo apt install -y lilv-utils liblilv-dev #修复lilv-0 not found using pkg-config
     
+    sudo apt install -y build-essential
+    sudo apt install -y libiconv-hook-dev 
+    sudo apt install -y liblcms2-dev 
+    sudo apt install -y libgmp-dev 
+    sudo apt install -y libbz2-dev 
+    sudo apt install -y liblzma-dev 
+    sudo apt install -y zlib1g-dev 
+    sudo apt install -y librist-dev 
+    sudo apt install -y libavisynth-dev 
+    sudo apt install -y libdvdnav-dev 
+    sudo apt install -y libdvdread-dev 
+    sudo apt install -y libaribb24-dev 
+    sudo apt install -y libaribcaption-dev 
+    sudo apt install -y libdavs2-dev 
+    sudo apt install -y libquirc-dev 
+    sudo apt install -y libuavs3d-dev 
+    sudo apt install -y libxevd-dev 
+    sudo apt install -y libqrencode-dev 
+    sudo apt install -y librav1e-dev 
+    sudo apt install -y libsvtav1-dev 
+    sudo apt install -y libvvenc-dev 
+    sudo apt install -y libxavs2-dev
+    sudo apt install -y libxeve-dev 
+    sudo apt install -y libjxl-dev 
+    sudo apt install -y libharfbuzz-dev 
+    sudo apt install -y liblensfun-dev 
+    sudo apt install -y libvmaf-dev 
+    sudo apt install -y libmodplug-dev 
+    sudo apt install -y libopencore-amrwb-dev 
+    sudo apt install -y libvo-amrwbenc-dev 
+    sudo apt install -y libilbc-dev 
+    sudo apt install -y liblc3-dev 
+    sudo apt install -y libopencore-amrnb-dev 
+    sudo apt install -y libplacebo-dev 
+    sudo apt install -y libshaderc-dev
+    sudo apt install -y libvulkan-dev 
+    sudo apt install -y libnvidia-compute-570-server 
+    sudo apt install -y libnvenc-dev 
+    sudo apt install -y libva-dev 
+    sudo apt install -y libd3d12-dev
     
     # cd ${PROJECT_BASE_DIR}/ffmpeg-source
     # installDav1d
@@ -362,6 +406,15 @@ function config_ffmpeg(){
     --enable-chromaprint \
     --enable-frei0r \
     --enable-libx264 \
+    --enable-version3 --disable-w32threads --disable-autodetect  --enable-iconv --enable-lcms2 --enable-gmp --enable-bzlib --enable-lzma \
+    --enable-zlib --enable-librist --enable-avisynth  --enable-libdvdnav --enable-libdvdread --enable-libaribb24 --enable-libaribcaption \
+    --enable-libdavs2 --enable-libquirc --enable-libuavs3d --enable-libxevd --enable-libqrencode --enable-librav1e --enable-libsvtav1 \
+    --enable-libvvenc --enable-libxavs2 --enable-libxeve --enable-libjxl --enable-mediafoundation \
+    --enable-libharfbuzz --enable-liblensfun --enable-libvmaf --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va \
+    --enable-d3d12va --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-vaapi --enable-libshaderc --enable-vulkan \
+    --enable-libplacebo --enable-libmodplug --enable-libopencore-amrwb \
+    --enable-libvo-amrwbenc --enable-libilbc \
+    --enable-liblc3 --enable-libopencore-amrnb \
     \
     --disable-shared \
     --enable-static \
@@ -396,7 +449,7 @@ function config_ffmpeg(){
 function make_linux_ffmpeg(){
     installLibs
     echo "➡️ 所有依赖安装完，开始编译"
-    cd ${PROJECT_BASE_DIR}/ffmpeg-source && pwd
+    cd "${PROJECT_BASE_DIR}/ffmpeg-source" && pwd
     export CC="gcc -std=c17"
     prefix=$3
     echo "所有参数：$@"
@@ -407,31 +460,32 @@ function make_linux_ffmpeg(){
     #开始配置和编译
     sudo make distclen || true 2>/dev/null
     sudo make clean || true 2>/dev/null
-    config_ffmpeg $prefix
+    config_ffmpeg "$prefix"
     #&& sudo make distclean
     # echo "➡️ 查看config log 50条"
     # tail -n 50 ffbuild/config.log
-    echo "➡️ make 编译Linux平台"
-    make -j$(nproc)
     
-    echo "➡️ 查看生成目录的./ffmpeg -version"
-    ./ffmpeg -version
-    echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
-    which ffmpeg
-    ffmpeg -version
+    # echo "➡️ make 编译Linux平台"
+    # make -j$(nproc)
     
-    echo "➡️ 第二个命令参数： $2 ,相等于install-linux?"
-    if [[ $2 == "install-linux" ]];then
-        echo "✅ 相等于install-linux=true"
-        install_linux_ffmpeg
-    fi
+    # echo "➡️ 查看生成目录的./ffmpeg -version"
+    # ./ffmpeg -version
+    # echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
+    # which ffmpeg
+    # ffmpeg -version
+    
+    # echo "➡️ 第二个命令参数： $2 ,相等于install-linux?"
+    # if [[ $2 == "install-linux" ]];then
+    #     echo "✅ 相等于install-linux=true"
+    #     install_linux_ffmpeg
+    # fi
 }
 
 function install_linux_ffmpeg(){
     cd ${PROJECT_BASE_DIR}/ffmpeg-source
     echo "➡️   安装linux_ffmpeg"
     sudo make install
-    echo "✅  安装linux_ffmpeg 完成" 
+    echo "✅  安装linux_ffmpeg 完成"
     echo && echo "➡️  打印版本号："
     which ffmpeg
     ffmpeg -version
@@ -481,12 +535,15 @@ function make_android_ffmpeg(){
 # 根据输入的参数选择执行哪个函数
 case "$1" in
     build-linux)
+        clone_code
         make_linux_ffmpeg $@
     ;;
     build-arm64)
+        clone_code
         make_android_ffmpeg
     ;;
     install-linux)
+        clone_code
         install_linux_ffmpeg
     ;;
     *)
