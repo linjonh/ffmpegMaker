@@ -368,10 +368,7 @@ function installLibs(){
     # install_lensFun
     #安装NVIDIA的编码器
     sudo apt-get install nvidia-cuda-toolkit
-    # ‣ Clone ffnvcodec
-    git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
-    # ‣ Install ffnvcodec
-    cd nv-codec-headers && sudo make install && cd –
+    source ${PROJECT_BASE_DIR}/install_ffnvcodecheaders.sh
 }
 # deprecate 
 function install_lensFun(){
