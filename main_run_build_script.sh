@@ -202,7 +202,7 @@ function installLibs(){
     make_linux_glew $PROJECT_BASE_DIR
     addLib64Path
     #编译Linux平台
-    echo "➡️ .configure 编译Linux平台 ..."
+    echo "➡️ 安装编译Linux平台的依赖库..."
     #在ffmpeg-source里配置 configure   #安装依赖库类库
     cd ${PROJECT_BASE_DIR}/ffmpeg-source
     
@@ -294,38 +294,68 @@ function installLibs(){
     sudo apt install -y liblzma-dev 
     sudo apt install -y zlib1g-dev 
     sudo apt install -y librist-dev 
-    sudo apt install -y libavisynth-dev 
     sudo apt install -y libdvdnav-dev 
     sudo apt install -y libdvdread-dev 
     sudo apt install -y libaribb24-dev 
-    sudo apt install -y libaribcaption-dev 
     sudo apt install -y libdavs2-dev 
-    sudo apt install -y libquirc-dev 
-    sudo apt install -y libuavs3d-dev 
-    sudo apt install -y libxevd-dev 
     sudo apt install -y libqrencode-dev 
-    sudo apt install -y librav1e-dev 
     sudo apt install -y libsvtav1-dev 
-    sudo apt install -y libvvenc-dev 
     sudo apt install -y libxavs2-dev
-    sudo apt install -y libxeve-dev 
-    sudo apt install -y libjxl-dev 
     sudo apt install -y libharfbuzz-dev 
-    sudo apt install -y liblensfun-dev 
-    sudo apt install -y libvmaf-dev 
+    # sudo apt install -y liblensfun-dev # 采用旧版本，手动安装
     sudo apt install -y libmodplug-dev 
     sudo apt install -y libopencore-amrwb-dev 
-    sudo apt install -y libvo-amrwbenc-dev 
-    sudo apt install -y libilbc-dev 
-    sudo apt install -y liblc3-dev 
+    sudo apt install -y libvo-amrwbenc-dev  
     sudo apt install -y libopencore-amrnb-dev 
     sudo apt install -y libplacebo-dev 
-    sudo apt install -y libshaderc-dev
     sudo apt install -y libvulkan-dev 
     sudo apt install -y libnvidia-compute-570-server 
-    sudo apt install -y libnvenc-dev 
     sudo apt install -y libva-dev 
-    sudo apt install -y libd3d12-dev
+    export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH # 为了解决ERROR: vulkan requested but not found
+    # sudo apt install -y libvvenc-dev 
+    # sudo apt install -y libjxl-dev 
+    # sudo apt install -y libvmaf-dev 
+    # sudo apt install -y libilbc-dev 
+
+    # sudo apt install -y libavisynth-dev       
+    # sudo apt install -y libaribcaption-dev    
+    # sudo apt install -y libquirc-dev          
+    # sudo apt install -y libuavs3d-dev         
+    # sudo apt install -y libxevd-dev           
+    # sudo apt install -y librav1e-dev          
+    # sudo apt install -y libxeve-dev           
+    # sudo apt install -y liblc3-dev                 
+    # sudo apt install -y libshaderc-dev        
+    # sudo apt install -y libd3d12-dev    
+    #因为找不到
+# E: Unable to locate package libavisynth-dev
+# E: Unable to locate package libaribcaption-dev
+# E: Unable to locate package libquirc-dev
+# E: Unable to locate package libuavs3d-dev
+# E: Unable to locate package libxevd-dev
+# E: Unable to locate package librav1e-dev
+# E: Unable to locate package libxeve-dev
+# E: Unable to locate package liblc3-dev
+# E: Unable to locate package libshaderc-dev
+# E: Unable to locate package libnvenc-dev
+# E: Unable to locate package libd3d12-dev
+    #因为找不到
+# E: 无法定位软件包 librist-dev
+# E: 无法定位软件包 libavisynth-dev
+# E: 无法定位软件包 libaribcaption-dev
+# E: 无法定位软件包 libquirc-dev
+# E: 无法定位软件包 libuavs3d-dev
+# E: 无法定位软件包 libxevd-dev
+# E: 无法定位软件包 librav1e-dev
+# E: 无法定位软件包 libvvenc-dev
+# E: 无法定位软件包 libxeve-dev
+# E: 无法定位软件包 libjxl-dev
+# E: 无法定位软件包 libvmaf-dev
+# E: 无法定位软件包 libilbc-dev
+# E: 无法定位软件包 liblc3-dev
+# E: 无法定位软件包 libshaderc-dev
+# E: 无法定位软件包 libnvenc-dev
+# E: 无法定位软件包 libd3d12-dev
     
     # cd ${PROJECT_BASE_DIR}/ffmpeg-source
     # installDav1d
@@ -334,11 +364,38 @@ function installLibs(){
     sudo apt install -y libdav1d-dev
     # sudo apt install -y libvpl-dev
     cd ${PROJECT_BASE_DIR}/ffmpeg-source
+    source install_svtav1_latest.sh
+    # install_lensFun
+    #安装NVIDIA的编码器
+    sudo apt-get install nvidia-cuda-toolkit
+    # ‣ Clone ffnvcodec
+    git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
+    # ‣ Install ffnvcodec
+    cd nv-codec-headers && sudo make install && cd –
+}
+# deprecate 
+function install_lensFun(){
+    cd ${PROJECT_BASE_DIR}/ffmpeg-source
+    echo "install_lensFun..."
+    git clone https://github.com/lensfun/lensfun.git
+    cd lensfun
+    git checkout tags/v0.2.8
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+    make -j$(nproc)
+    sudo make install
+    sudo ldconfig
+    pkg-config --modversion lensfun
+    # 应该显示 0.2.9
+    cd -
+    cd .. && pwd
 }
 function config_ffmpeg(){
     echo "➡️ config_ffmpeg所有参数 $@ "
     echo "➡️ config_ffmpeg第一个 $1"
     linux=$(cat /etc/issue | sed 's/\\n//g' | sed 's/\\l//g')
+    echo "➡️ ”start run ffmpeg ./configure ..."
     ./configure \
     --prefix=$1 \
     --extra-version="$linux" \
@@ -406,22 +463,50 @@ function config_ffmpeg(){
     --enable-chromaprint \
     --enable-frei0r \
     --enable-libx264 \
+    \
     --enable-version3 --disable-w32threads --disable-autodetect  --enable-iconv --enable-lcms2 --enable-gmp --enable-bzlib --enable-lzma \
-    --enable-zlib --enable-librist --enable-avisynth  --enable-libdvdnav --enable-libdvdread --enable-libaribb24 --enable-libaribcaption \
-    --enable-libdavs2 --enable-libquirc --enable-libuavs3d --enable-libxevd --enable-libqrencode --enable-librav1e --enable-libsvtav1 \
-    --enable-libvvenc --enable-libxavs2 --enable-libxeve --enable-libjxl --enable-mediafoundation \
-    --enable-libharfbuzz --enable-liblensfun --enable-libvmaf --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va \
-    --enable-d3d12va --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-vaapi --enable-libshaderc --enable-vulkan \
-    --enable-libplacebo --enable-libmodplug --enable-libopencore-amrwb \
-    --enable-libvo-amrwbenc --enable-libilbc \
-    --enable-liblc3 --enable-libopencore-amrnb \
+    --enable-zlib --enable-libdvdnav --enable-libdvdread --enable-libaribb24  \
+    --enable-libdavs2 --enable-libqrencode --enable-libsvtav1 --enable-libxavs2 \
+    --enable-libharfbuzz --enable-cuda-llvm --enable-cuvid  \
+    --enable-ffnvcodec --enable-vaapi  --enable-libplacebo --enable-libmodplug --enable-libopencore-amrwb \
+    --enable-libvo-amrwbenc --enable-libopencore-amrnb \
     \
     --disable-shared \
     --enable-static \
     --enable-filter=gltransition \
     --extra-libs='-lGLEW -lEGL' \
-    --enable-cross-compile
-    
+    --enable-cross-compile \
+    \
+    --enable-cuda \
+    --enable-cuvid \
+    --enable-nvenc \
+    --enable-nvdec \
+    --enable-cuda-nvcc \
+    --enable-libnpp \
+    --enable-nonfree \
+    --enable-gpl \
+    --extra-cflags=-I/usr/local/cuda/include \
+    --extra-ldflags=-L/usr/local/cuda/lib64
+# E: 无法定位软件包 librist-dev
+# E: 无法定位软件包 libavisynth-dev
+# E: 无法定位软件包 libaribcaption-dev
+# E: 无法定位软件包 libquirc-dev
+# E: 无法定位软件包 libuavs3d-dev
+# E: 无法定位软件包 libxevd-dev
+# E: 无法定位软件包 librav1e-dev
+# E: 无法定位软件包 libvvenc-dev
+# E: 无法定位软件包 libxeve-dev
+# E: 无法定位软件包 libjxl-dev
+# E: 无法定位软件包 libvmaf-dev
+# E: 无法定位软件包 libilbc-dev
+# E: 无法定位软件包 liblc3-dev
+# E: 无法定位软件包 libshaderc-dev
+# E: 无法定位软件包 libnvenc-dev
+# E: 无法定位软件包 libd3d12-dev
+#找不到依赖包就 注释掉enable了
+ # --enable-librist --enable-avisynth  --enable-libaribcaption --enable-libquirc  --enable-libuavs3d -enable-libxevd --enable-librav1e --enable-libvvenc --enable-libxeve --enable-libjxl  --enable-libvmaf
+ #  --enable-libilbc --enable-liblc3 --enable-libshaderc --enable-d3d12va  --enable-d3d11va --enable-dxva2 --enable-amf --enable-vulkan   --enable-liblensfun 
+
     # ./configure \
     #     --prefix=/usr/local \
     #     --enable-gpl \
@@ -447,6 +532,8 @@ function config_ffmpeg(){
 }
 
 function make_linux_ffmpeg(){
+    #开始安装依赖库
+    echo "➡️  开始安装依赖库"
     installLibs
     echo "➡️ 所有依赖安装完，开始编译"
     cd "${PROJECT_BASE_DIR}/ffmpeg-source" && pwd
@@ -465,20 +552,20 @@ function make_linux_ffmpeg(){
     # echo "➡️ 查看config log 50条"
     # tail -n 50 ffbuild/config.log
     
-    # echo "➡️ make 编译Linux平台"
-    # make -j$(nproc)
+    echo "➡️ make 编译Linux平台"
+    make -j$(nproc)
     
-    # echo "➡️ 查看生成目录的./ffmpeg -version"
-    # ./ffmpeg -version
-    # echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
-    # which ffmpeg
-    # ffmpeg -version
+    echo "➡️ 查看生成目录的./ffmpeg -version"
+    ./ffmpeg -version
+    echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
+    which ffmpeg
+    ffmpeg -version
     
-    # echo "➡️ 第二个命令参数： $2 ,相等于install-linux?"
-    # if [[ $2 == "install-linux" ]];then
-    #     echo "✅ 相等于install-linux=true"
-    #     install_linux_ffmpeg
-    # fi
+    echo "➡️ 第二个命令参数： $2 ,相等于install-linux?"
+    if [[ $2 == "install-linux" ]];then
+        echo "✅ 相等于install-linux=true"
+        install_linux_ffmpeg
+    fi
 }
 
 function install_linux_ffmpeg(){
@@ -546,9 +633,16 @@ case "$1" in
         clone_code
         install_linux_ffmpeg
     ;;
+    config)
+        cd "${PROJECT_BASE_DIR}/ffmpeg-source" && pwd
+        export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH # 为了解决ERROR: vulkan requested but not found
+        config_ffmpeg
+        cd -
+    ;;
     *)
         echo && echo "➡️  无效参数。可用的参数: build-linux, build-arm64, install-linux" && echo
     ;;
+
 esac
 
 
