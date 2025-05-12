@@ -555,9 +555,9 @@ function make_linux_ffmpeg(){
     
     echo "➡️ 查看生成目录的./ffmpeg -version"
     ./ffmpeg -version
-    echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
-    which ffmpeg
-    ffmpeg -version
+    #echo "➡️ 查看生成目录的which ffmpeg的ffmpeg -version"
+    #which ffmpeg
+    #ffmpeg -version
     
     echo "➡️ 第二个命令参数： $2 ,相等于install-linux?"
     if [[ $2 == "install-linux" ]];then
