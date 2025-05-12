@@ -363,8 +363,8 @@ function installLibs(){
     instalLlibvpl
     sudo apt install -y libdav1d-dev
     # sudo apt install -y libvpl-dev
-    cd ${PROJECT_BASE_DIR}/ffmpeg-source
-    source install_svtav1_latest.sh
+    source ${PROJECT_BASE_DIR}/install_svtav1_latest.sh
+    # cd ${PROJECT_BASE_DIR}/ffmpeg-source
     # install_lensFun
     #安装NVIDIA的编码器
     sudo apt-get install nvidia-cuda-toolkit
