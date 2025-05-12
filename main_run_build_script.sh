@@ -546,11 +546,12 @@ function make_linux_ffmpeg(){
     sudo make clean || true 2>/dev/null
     config_ffmpeg "$prefix"
     #&& sudo make distclean
-    # echo "➡️ 查看config log 50条"
-    # tail -n 50 ffbuild/config.log
+
+    echo "➡️ 查看config log 50条"
+    tail -n 50 ffbuild/config.log
     
     echo "➡️ make 编译Linux平台"
-    make -j$(nproc)
+    make -j"$(nproc)"
     
     echo "➡️ 查看生成目录的./ffmpeg -version"
     ./ffmpeg -version
