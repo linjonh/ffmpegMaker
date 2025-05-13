@@ -309,7 +309,6 @@ function installLibs(){
     sudo apt install -y libopencore-amrnb-dev 
     sudo apt install -y libplacebo-dev 
     sudo apt install -y libvulkan-dev 
-    sudo apt install -y libnvidia-compute-570-server 
     sudo apt install -y libva-dev 
     export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH # 为了解决ERROR: vulkan requested but not found
     # sudo apt install -y libvvenc-dev 
@@ -366,9 +365,8 @@ function installLibs(){
     source ${PROJECT_BASE_DIR}/install_svtav1_latest.sh
     # cd ${PROJECT_BASE_DIR}/ffmpeg-source
     # install_lensFun
-    #安装NVIDIA的编码器
-    sudo apt-get install nvidia-cuda-toolkit
     source ${PROJECT_BASE_DIR}/install_ffnvcodecheaders.sh
+    source ${PROJECT_BASE_DIR}/install_nvidia_cuda_toolkit.sh
 }
 # deprecate 
 function install_lensFun(){
