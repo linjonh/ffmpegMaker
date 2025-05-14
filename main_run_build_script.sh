@@ -206,9 +206,12 @@ function config_ffmpeg(){
 
 function make_linux_ffmpeg(){
     #开始安装依赖库
-    echo "➡️  开始安装依赖库"
-    source ./install_dependences.sh
-    echo "➡️ 所有依赖安装完，开始编译"
+    if [[ ! $4 == "skip-install-depens" ]];then
+        echo "➡️  开始安装依赖库"
+        source ./install_dependences.sh
+        echo "➡️ 所有依赖安装完，开始编译"
+    fi
+
     cd "${PROJECT_BASE_DIR}/ffmpeg-source" && pwd
     export CC="gcc -std=c17"
     prefix=$3
